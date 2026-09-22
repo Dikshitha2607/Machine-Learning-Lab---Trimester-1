@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,15 +13,13 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-
 st.set_page_config(page_title="Car Price Predictor", page_icon="🚗", layout="wide")
-
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv("CarPrice_Assignment.csv")
+    base_dir = Path(__file__).resolve().parent
+    df = pd.read_csv(base_dir / "CarPrice_Assignment.csv")
     return df
-
 
 @st.cache_resource
 def train_regression_model(df):
@@ -66,21 +65,10 @@ def train_regression_model(df):
     rmse = np.sqrt(mse)
     r2 = r2_score(y_test, y_pred)
 
-    metrics = {
-        "MAE": mae,
-        "MSE": mse,
-        "RMSE": rmse,
-        "R2": r2,
-        "model": model,
-        "X_train": X_train,
-        "X_test": X_test,
-        "y_train": y_train,
-        "y_test": y_test,
-        "y_pred": y_pred,
-    }
-
+    metrics = { "MAE": mae, "MSE": mse, "RMSE": rmse, "R2": r2,
+        "model": model, "X_train": X_train, "X_test": X_test, "y_train": y_train,
+        "y_test": y_test, "y_pred": y_pred,}
     return metrics
-
 
 def make_car_visual(value, label, color):
     fig, ax = plt.subplots(figsize=(4.5, 2.1))
@@ -97,15 +85,7 @@ def make_car_visual(value, label, color):
     ax.set_ylim(0, 1.5)
     ax.axis("off")
 
-    ax.text(
-        1.15,
-        1.2,
-        f"{label}: {value}",
-        ha="center",
-        va="center",
-        fontsize=10,
-        fontweight="bold",
-    )
+    ax.text(1.15, 1.2, f"{label}: {value}", ha="center", va="center", fontsize=10,fontweight="bold", color=color)
     return fig
 
 
@@ -135,9 +115,7 @@ def price_impact_cards(df):
             f"${weight_high['price'].mean():,.0f} vs ${weight_low['price'].mean():,.0f}"
         ),
     }
-
     return metrics
-
 
 def plot_relationship(df, x_col, y_col, title):
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -148,11 +126,9 @@ def plot_relationship(df, x_col, y_col, title):
     ax.set_ylabel("Price")
     return fig
 
-
 df = load_data()
 metrics = train_regression_model(df)
 impact = price_impact_cards(df)
-
 
 st.title("🚗 Car Price Prediction Dashboard")
 st.caption("Multiple Linear Regression model for automobile price prediction")
@@ -173,10 +149,7 @@ with st.sidebar:
     )
 
     df_filtered = df[(df["price"] >= min_price) & (df["price"] <= max_price)]
-
-
 tab1, tab2, tab3 = st.tabs(["Overview", "EDA", "Prediction"])
-
 with tab1:
     st.subheader("Dataset Preview")
     col1, col2 = st.columns(2)
